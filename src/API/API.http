@@ -1,6 +1,34 @@
 @API_HostAddress = http://localhost:5078
 
-GET {{API_HostAddress}}/weatherforecast/
+### Get all products (paginated)
+GET {{API_HostAddress}}/api/v1/products?page=1&pageSize=10
 Accept: application/json
+
+### Get a product by id
+GET {{API_HostAddress}}/api/v1/products/1
+Accept: application/json
+
+### Get items for a product
+GET {{API_HostAddress}}/api/v1/products/1/items
+Accept: application/json
+
+### Create a product
+POST {{API_HostAddress}}/api/v1/products
+Content-Type: application/json
+
+{
+  "productName": "Sample Product"
+}
+
+### Update a product
+PUT {{API_HostAddress}}/api/v1/products/1
+Content-Type: application/json
+
+{
+  "productName": "Updated Product"
+}
+
+### Delete a product
+DELETE {{API_HostAddress}}/api/v1/products/1
 
 ###
