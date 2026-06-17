@@ -13,6 +13,7 @@ using Infrastructure.Auth;
 using Infrastructure.Data;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -153,6 +154,13 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+    // Apply any pending migrations on startup so the containerized stack is
+    // self-sufficient (no manual `dotnet ef database update`). Guarded by
+    // IsRelational() so the in-memory provider used in tests skips it.
+    if (context.Database.IsRelational())
+        await context.Database.MigrateAsync();
+
     await IdentitySeeder.SeedAdminAsync(context, hasher);
 }
 
