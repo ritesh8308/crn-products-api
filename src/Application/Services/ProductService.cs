@@ -18,6 +18,11 @@ namespace Application.Services;
 /// </summary>
 public class ProductService : IProductService
 {
+    // Pagination guard rails: a sane default page size, and a hard upper bound so a
+    // client can't request a single enormous page and exhaust server memory.
+    private const int DefaultPageSize = 10;
+    private const int MaxPageSize = 100;
+
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateProductDto> _createValidator;
@@ -39,10 +44,11 @@ public class ProductService : IProductService
     public async Task<PagedResult<ProductDto>> GetProductsAsync(
         int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        // Defensive normalization so a caller can't ask for page 0 / negative size.
-        // (Phase 7 finalizes pagination bounds; this keeps the service safe on its own.)
+        // Defensive normalization so a caller can't ask for page 0 / negative size,
+        // and can't request an unbounded page.
         if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 10;
+        if (pageSize < 1) pageSize = DefaultPageSize;
+        if (pageSize > MaxPageSize) pageSize = MaxPageSize;
 
         var (items, totalCount) = await _productRepository.GetPagedAsync(page, pageSize, cancellationToken);
 
