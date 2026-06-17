@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Infrastructure.Auth;
 using Infrastructure.Data;
 using Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,14 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Auth infrastructure. Bind JwtSettings here so both the token service (signing)
+        // and the API's JwtBearer middleware (validation) read the same configuration.
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();  // stateless, safe as singleton
+        services.AddScoped<ITokenService, TokenService>();
 
         return services;
     }

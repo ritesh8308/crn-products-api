@@ -1,6 +1,8 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Asp.Versioning;
+using Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -17,6 +19,7 @@ namespace API.Controllers;
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/products")]
 [Produces("application/json")]
+[Authorize] // every endpoint needs a valid token; writes additionally require Admin (below)
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
@@ -64,8 +67,10 @@ public class ProductsController : ControllerBase
 
     /// <summary>POST a new product. Returns 201 with a Location header pointing at the new resource.</summary>
     [HttpPost]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ProductDto>> CreateProduct(
         [FromBody] CreateProductDto dto, CancellationToken cancellationToken)
     {
@@ -79,8 +84,10 @@ public class ProductsController : ControllerBase
 
     /// <summary>PUT (update) an existing product. Returns 204 on success.</summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProduct(
         int id, [FromBody] UpdateProductDto dto, CancellationToken cancellationToken)
@@ -91,7 +98,9 @@ public class ProductsController : ControllerBase
 
     /// <summary>DELETE a product. Returns 204 on success.</summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProduct(int id, CancellationToken cancellationToken)
     {

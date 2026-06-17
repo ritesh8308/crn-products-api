@@ -20,6 +20,8 @@ public class ApplicationDbContext : DbContext
     // Each DbSet<T> is a strongly-typed handle to a table you query with LINQ.
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Item> Items => Set<Item>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

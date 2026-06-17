@@ -29,5 +29,21 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                 Description = "Products API for the CRN Technosoft .NET assessment."
             });
         }
+
+        // JWT bearer support in the Swagger UI: adds the "Authorize" button so you can
+        // paste an access token once and have it sent on every "Try it out" request.
+        var scheme = new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Paste only the JWT access token (no 'Bearer ' prefix).",
+            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+        };
+
+        options.AddSecurityDefinition("Bearer", scheme);
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement { [scheme] = Array.Empty<string>() });
     }
 }

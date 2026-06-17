@@ -41,9 +41,11 @@ public class ExceptionHandlingMiddleware
         // Anything unmapped is a genuine 500 we did not anticipate.
         var (statusCode, title) = exception switch
         {
-            NotFoundException   => (StatusCodes.Status404NotFound, "Resource not found"),
-            ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
-            _                   => (StatusCodes.Status500InternalServerError, "An unexpected error occurred")
+            NotFoundException     => (StatusCodes.Status404NotFound, "Resource not found"),
+            ValidationException   => (StatusCodes.Status400BadRequest, "Validation failed"),
+            ConflictException     => (StatusCodes.Status409Conflict, "Conflict"),
+            UnauthorizedException => (StatusCodes.Status401Unauthorized, "Authentication failed"),
+            _                     => (StatusCodes.Status500InternalServerError, "An unexpected error occurred")
         };
 
         // Expected domain exceptions are warnings (client's fault); a 500 is a real
