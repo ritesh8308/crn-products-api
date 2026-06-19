@@ -1,0 +1,33 @@
+Here's how to run and stop this API. It's a .NET 8 Web API with two ways to run it.
+
+Option A — Docker Compose (recommended, runs API + SQL Server together)
+
+Run:
+docker compose up --build
+Then open http://localhost:5078/swagger
+
+Stop:
+- If running in the foreground: press Ctrl+C
+- To fully tear down containers: docker compose down
+- To also wipe the database volume: docker compose down -v
+
+Tip: add -d (docker compose up --build -d) to run detached in the background, then stop with docker compose down.
+
+Option B — Run locally with the .NET SDK
+
+This needs a SQL Server instance. Start one with Docker:
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Your_strong_Pass123" \
+  -p 1433:1433 --name crn-sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+
+Run the API:
+dotnet run --project src/API
+Then open http://localhost:5078/swagger (migrations apply automatically on startup).
+
+Stop:
+- API: press Ctrl+C in the terminal
+- SQL container: docker stop crn-sqlserver (and docker rm crn-sqlserver to remove it)
+
+Notes
+
+- A default admin user is seeded on first startup — use the Authorize button in Swagger to log in (credentials arein the README's Authentication section).
+- If host port 1433 is already taken by another local SQL Server, stop that one first or remove the db ports:mapping in docker-compose.yml.
